@@ -1,5 +1,4 @@
 #include "glwidget.h"
-#include <QFileInfo>
 
 GLWidget::GLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
@@ -11,84 +10,69 @@ void GLWidget::initializeGL()
 {
     // QOpenGLFunctionsを現在のコンテキストに関連付けする
     initializeOpenGLFunctions();
-    // version確認
-    qDebug() << "GL version  :" << QLatin1String(reinterpret_cast<const char*>(glGetString(GL_VERSION)));
-    qDebug() << "GLSL version:" << QLatin1String(reinterpret_cast<const char*>(glGetString(GL_SHADING_LANGUAGE_VERSION)));
 
     // 背景を設定
-    glClearColor(0.7f, 0.7f, 0.4f, 1.0f);
+    glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 
     // 頂点を用意
     int numVertices = 3;
     float vertices[] {
-         0.0f, 1.0f, 0.0f, 1.0f,
-        -1.0f, 0.0f, 0.0f, 1.0f,
-         1.0f, 0.0f, 0.0f, 1.0f,
+         0.0f,  0.5f, 0.0f, 1.0f,
+        -0.5f, -0.5f, 0.0f, 1.0f,
+         0.5f, -0.5f, 0.0f, 1.0f,
     };
 
-    // -----vertex bufferをセットアップする-----
-    // bufferを作成し、さらに現在のコンテキストにバインド
-//    vertexBuffer.create();
+    // bufferを作成する
+    vertexBuffer.create();
+    // bufferを現在のコンテキストにバインド
+    vertexBuffer.bind();
     // bufferの用途を設定する
-//    vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     // bufferの領域確保を行い、さらにverticesデータを入れる
-//    const int numDimensions = 4;
-//    int bufferSize = numVertices * numDimensions * sizeof(float);
-//    vertexBuffer.allocate(vertices, bufferSize);
-
+    int bufferSize = numVertices * 4 * sizeof(float); // 4 = numDimensions
+    vertexBuffer.allocate(vertices, bufferSize);
 
     // shader programをセットアップする
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vertex_shader.vsh");
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fragment_shader.fsh");
-    qDebug() << "link: " << shaderProgram.link();
-    qDebug() << "bind: " << shaderProgram.bind();
-
-    // locationを取得
-//    variables_location["position"] = 0;
-    variables_location["vpMatrix"] = shaderProgram.uniformLocation("vpMatrix");
-
+    shaderProgram.link();
+    shaderProgram.bind();
 }
 
 void GLWidget::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT);
+    static int frame = 0;
 
-    // view matrix
-    QVector3D eyePos(0, 0, 5);
-    QVector3D targetPos(0, 0, 5);
-    QVector3D upVector(0, 1, 0);
+    // view matrixを計算する
     viewMatrix.setToIdentity();
-    viewMatrix.lookAt(eyePos, targetPos, upVector);
+    viewMatrix.lookAt(/*eyePos   = */ QVector3D(1, 1, 1), /*targetPos = */ QVector3D(0, 0, 0),
+                      /*upVector = */ QVector3D(0, 1, 0));
 
-    // vp matrixをshaderに送る
-    QMatrix4x4 vpMatrix = projectionMatrix * viewMatrix;
-    shaderProgram.setUniformValue(variables_location["vpMatrix"], vpMatrix);
+    // model matrixを作成し、回転させる
+    QMatrix4x4 modelMatrix;
+    modelMatrix.setToIdentity();
+    modelMatrix.rotate(frame, QVector3D(0, 1, 0));
 
-    int numDimensions = 2;
-    static float vertices[] {
-         0.0f, 1.0f,
-        -1.0f, 0.0f,
-         1.0f, 0.0f,
-    };
+    // mvp matrixを計算し、shaderに送る
+    QMatrix4x4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
+    shaderProgram.setUniformValue("mvpMatrix", mvpMatrix);
 
-    shaderProgram.enableAttributeArray(0);
-    shaderProgram.setAttributeArray(0, vertices, numDimensions);
+    // vertex bufferをshaderに送る
+    shaderProgram.enableAttributeArray("position");
+    shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset = */ 0, /*tupleSize = */ 4);
 
-    glDrawArrays(GL_TRIANGLES, /*firstVertex=*/ 0, /*numVertex=*/ 3);
+    glDrawArrays(GL_TRIANGLES, /*firstVertex = */ 0, /*numVertex = */ 3);
+
+    frame++;
+    update();
 }
 
 void GLWidget::resizeGL(int w, int h)
 {
-    // viewportの領域を設定
-//    glViewport( 0, 0, w, h);
-
     // projection matrixを単位行列にリセット
     projectionMatrix.setToIdentity();
 
     // projection matrixのperspectiveを設定
-    float verticalAngle = 60.0;
-    float aspectRatio = float(w)/h;
-    float nearPlane = 0.01;
-    float farPlane = 1000.0;
-    projectionMatrix.perspective(verticalAngle, aspectRatio, nearPlane, farPlane);
+    projectionMatrix.perspective(/*verticalAngle = */ 60.0, /*aspectRatio = */ float(w)/h,
+                                 /*nearPlane     = */ 0.01, /*farPlane    = */ 1000.0);
 }
