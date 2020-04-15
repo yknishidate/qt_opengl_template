@@ -1,5 +1,5 @@
+
 #include "glwidget.h"
-#include <QFileInfo>
 
 GLWidget::GLWidget(QWidget *parent)
     : QOpenGLWidget(parent)
