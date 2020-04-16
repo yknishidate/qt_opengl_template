@@ -22,8 +22,6 @@ protected:
     void resizeGL(int w, int h) override;
 
 private:
-    QOpenGLBuffer vertexBuffer;
-    QOpenGLBuffer indexBuffer;
     QOpenGLShaderProgram shaderProgram;
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 viewMatrix;

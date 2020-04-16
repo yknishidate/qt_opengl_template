@@ -73,7 +73,6 @@ Mesh importFbx(const char* filename)
         //p個目のポリゴンのn個目の頂点への処理
         for (int n = 0; n < 3; ++n){
             GLuint index = fbxmesh->GetPolygonVertex(p, n);
-            printf("%d, ", index);
             indices.push_back(index);
         }
     }

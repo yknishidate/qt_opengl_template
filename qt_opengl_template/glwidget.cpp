@@ -2,24 +2,19 @@
 #include "fbx_importer.h"
 
 GLWidget::GLWidget(QWidget *parent)
-    : QOpenGLWidget(parent),
-      vertexBuffer(QOpenGLBuffer::VertexBuffer),
-      indexBuffer(QOpenGLBuffer::IndexBuffer)
+    : QOpenGLWidget(parent)
 {
 }
 
 void GLWidget::initializeGL()
 {
-
-    qDebug() << "initializeGL start";
-
     // QOpenGLFunctionsを現在のコンテキストに関連付けする
     initializeOpenGLFunctions();
 
     // 背景を設定
     glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 
-    // diamond mesh
+    // ---------- diamond mesh ----------
 //    QVector<QVector3D> positions;
 //    positions << QVector3D( 0.0f,  0.5f, 0.0f)
 //              << QVector3D(-0.5f,  0.0f, 0.0f)
