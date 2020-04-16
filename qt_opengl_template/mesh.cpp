@@ -4,29 +4,49 @@ Mesh::Mesh():
     vbo(QOpenGLBuffer::VertexBuffer),
     ibo(QOpenGLBuffer::IndexBuffer)
 {
-
 }
 
-void Mesh::setPositions(QVector<QVector3D> positions)
+void Mesh::init()
 {
+    // meshを作ったらすぐに実行する
+    // QOpenGLFunctionsを継承しているのはこの関数のため
+    initializeOpenGLFunctions();
+}
+
+void Mesh::setPositions(const QVector<QVector3D>& positions)
+{
+    this->positions = positions;
+
     vbo.create();
     vbo.bind();
     vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    this->positions = positions;
     int bufferSize = positions.size() * 3 * sizeof(GLfloat); // 3 = 3D
-    vbo.allocate(&this->positions[0], bufferSize);
+    vbo.allocate(&positions[0], bufferSize);
 }
 
-void Mesh::setIndices(QVector<GLuint> indices)
+void Mesh::setIndices(const QVector<GLuint>& indices)
 {
+    this->indices = indices;
+
     ibo.create();
     ibo.bind();
     ibo.setUsagePattern(QOpenGLBuffer::StaticDraw);
     int bufferSize = indices.size() * sizeof(GLuint);
-    ibo.allocate(&this->indices[0], bufferSize);
+    ibo.allocate(&indices[0], bufferSize);
 }
 
-void Mesh::render(QOpenGLShaderProgram shaderProgram)
+void Mesh::draw(QOpenGLShaderProgram& shaderProgram)
 {
+    vbo.bind();
+    ibo.bind();
+
+    // vboをshaderに送る
+    shaderProgram.enableAttributeArray("position");
+    shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset*/ 0, /*tupleSize*/ 3); // 3 = 3D
+
+    // indexを利用して描画する
+    // indicesには、iboを使わない場合は配列データのポインタを渡す
+    // iboを使う場合はiboの位置をbyteで指定する
+    glDrawElements(GL_TRIANGLES, indices.size(), /*type*/ GL_UNSIGNED_INT, /*indices*/ 0);
 
 }

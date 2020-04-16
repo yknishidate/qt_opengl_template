@@ -7,15 +7,16 @@
 #include <QOpenGLWidget>
 #include <QOpenGLBuffer>
 #include <QOpenGLShaderProgram>
+#include <QOpenGLFunctions>
 
-
-class Mesh
+class Mesh : protected QOpenGLFunctions
 {
 public:
     Mesh();
-    void setPositions(QVector<QVector3D>);
-    void setIndices(QVector<GLuint>);
-    void render(QOpenGLShaderProgram);
+    void init();
+    void setPositions(const QVector<QVector3D>&);
+    void setIndices(const QVector<GLuint>&);
+    void draw(QOpenGLShaderProgram&);
 
 private:
     QVector<QVector3D> positions;

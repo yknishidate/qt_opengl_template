@@ -11,31 +11,25 @@ GLWidget::GLWidget(QWidget *parent)
 
 void GLWidget::initializeGL()
 {
+
+    qDebug() << "initializeGL start";
+
     // QOpenGLFunctionsを現在のコンテキストに関連付けする
     initializeOpenGLFunctions();
 
     // 背景を設定
     glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 
-    // ---------- vbo ----------
-    // bufferを作成する
-    vertexBuffer.create();
-    // bufferを現在のコンテキストにバインド
-    vertexBuffer.bind();
-    // bufferの用途を設定する
-    vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-    // bufferの領域確保を行い、さらにverticesデータを入れる
-//    int vertexBufferSize = numVertices * 4 * sizeof(GLfloat); // 4 = numDimensions
-//    vertexBuffer.allocate(vertices, vertexBufferSize);
+//    QVector<QVector3D> positions;
+//    positions << QVector3D( 0.0f,  0.5f, 0.0f)
+//              << QVector3D(-0.5f,  0.0f, 0.0f)
+//              << QVector3D( 0.0f, -0.5f, 0.0f)
+//              << QVector3D( 0.5f,  0.0f, 0.0f);
+//    QVector<GLuint> indices = { 0, 1, 3, 1, 2, 3 };
 
-    // ---------- ibo ----------
-    // 処理は同上
-    indexBuffer.create();
-    indexBuffer.bind();
-    indexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
-//    int indexBufferSize = numIndices * sizeof(GLuint);
-//    indexBuffer.allocate(indices, indexBufferSize);
-
+//    mesh.init();
+//    mesh.setPositions(positions);
+//    mesh.setIndices(indices);
 
     // shader programをセットアップする
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vertex_shader.vsh");
@@ -43,6 +37,7 @@ void GLWidget::initializeGL()
     shaderProgram.link();
     shaderProgram.bind();
 
+    qDebug() << "initializeGL fin";
     importFbx("E:/3D Objects/Cube.fbx", vertexBuffer, indexBuffer);
 }
 
@@ -65,13 +60,15 @@ void GLWidget::paintGL()
     shaderProgram.setUniformValue("mvpMatrix", mvpMatrix);
 
     // vertex bufferをshaderに送る
-    shaderProgram.enableAttributeArray("position");
-    shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset*/ 0, /*tupleSize*/ 3);
+//    shaderProgram.enableAttributeArray("position");
+//    shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset*/ 0, /*tupleSize*/ 3);
 
     // indexを利用して描画する
     // indicesには、iboを使わない場合は配列データのポインタを渡す
     // iboを使う場合はiboの位置をbyteで指定する
-    glDrawElements(GL_TRIANGLES, /*numIndices*/ 36, /*type*/ GL_UNSIGNED_INT, /*indices*/ 0);
+//    glDrawElements(GL_TRIANGLES, /*numIndices*/ 6, /*type*/ GL_UNSIGNED_INT, /*indices*/ 0);
+
+    mesh.draw(shaderProgram);
 
     frame++;
     update();

@@ -7,6 +7,7 @@
 #include <QOpenGLFunctions>
 #include <QOpenGLShaderProgram>
 #include <QOpenGLBuffer>
+#include "mesh.h"
 
 class GLWidget : public QOpenGLWidget, protected QOpenGLFunctions
 {
@@ -26,5 +27,6 @@ private:
     QOpenGLShaderProgram shaderProgram;
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 viewMatrix;
+    Mesh mesh;
 };
 #endif // GLWIDGET_H
