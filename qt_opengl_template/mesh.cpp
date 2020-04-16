@@ -4,6 +4,9 @@ Mesh::Mesh():
     vbo(QOpenGLBuffer::VertexBuffer),
     ibo(QOpenGLBuffer::IndexBuffer)
 {
+    // glDrawを使えるようにする
+    // QOpenGLFunctionsを継承しているのはこの関数のため
+    initializeOpenGLFunctions();
 }
 
 void Mesh::init()
@@ -22,6 +25,11 @@ void Mesh::setPositions(const QVector<QVector3D>& positions)
     vbo.setUsagePattern(QOpenGLBuffer::StaticDraw);
     int bufferSize = positions.size() * 3 * sizeof(GLfloat); // 3 = 3D
     vbo.allocate(&positions[0], bufferSize);
+}
+
+void Mesh::setVertices(const QVector<Vertex>& vertices)
+{
+    this->vertices = vertices;
 }
 
 void Mesh::setIndices(const QVector<GLuint>& indices)

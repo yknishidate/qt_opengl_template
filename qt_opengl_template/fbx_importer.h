@@ -9,7 +9,7 @@
 #include "mesh.h"
 
 
-Mesh importFbx(const char* filename)
+QSharedPointer<Mesh> importFbx(const char* filename)
 {
 
     // メモリ管理を行うmanagerを初期化
@@ -77,10 +77,9 @@ Mesh importFbx(const char* filename)
         }
     }
 
-    Mesh mesh;
-    mesh.init();
-    mesh.setPositions(positions);
-    mesh.setIndices(indices);
+    QSharedPointer<Mesh> mesh = QSharedPointer<Mesh>(new Mesh);
+    mesh->setPositions(positions);
+    mesh->setIndices(indices);
 
     // managerと管理しているオブジェクトを全て破棄する
     manager->Destroy();

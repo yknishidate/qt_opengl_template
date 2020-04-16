@@ -22,9 +22,9 @@ void GLWidget::initializeGL()
 //              << QVector3D( 0.5f,  0.0f, 0.0f);
 //    QVector<GLuint> indices = { 0, 1, 3, 1, 2, 3 };
 
-//    mesh.init();
-//    mesh.setPositions(positions);
-//    mesh.setIndices(indices);
+//    mesh = QSharedPointer<Mesh>(new Mesh);
+//    mesh->setPositions(positions);
+//    mesh->setIndices(indices);
 
     // import from fbx
     mesh = importFbx("E:/3D Objects/teapot.fbx");
@@ -56,7 +56,7 @@ void GLWidget::paintGL()
     shaderProgram.setUniformValue("mvpMatrix", mvpMatrix);
 
     // 描画する
-    mesh.draw(shaderProgram);
+    mesh->draw(shaderProgram);
 
     frame++;
     update();

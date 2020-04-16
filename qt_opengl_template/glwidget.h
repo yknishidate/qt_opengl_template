@@ -25,6 +25,6 @@ private:
     QOpenGLShaderProgram shaderProgram;
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 viewMatrix;
-    Mesh mesh;
+    QSharedPointer<Mesh> mesh;
 };
 #endif // GLWIDGET_H
