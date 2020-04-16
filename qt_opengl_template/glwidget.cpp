@@ -6,7 +6,6 @@ GLWidget::GLWidget(QWidget *parent)
       vertexBuffer(QOpenGLBuffer::VertexBuffer),
       indexBuffer(QOpenGLBuffer::IndexBuffer)
 {
-
 }
 
 void GLWidget::initializeGL()
@@ -20,6 +19,7 @@ void GLWidget::initializeGL()
     // 背景を設定
     glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 
+    // diamond mesh
 //    QVector<QVector3D> positions;
 //    positions << QVector3D( 0.0f,  0.5f, 0.0f)
 //              << QVector3D(-0.5f,  0.0f, 0.0f)
@@ -31,14 +31,15 @@ void GLWidget::initializeGL()
 //    mesh.setPositions(positions);
 //    mesh.setIndices(indices);
 
+    // import from fbx
+    mesh = importFbx("E:/3D Objects/teapot.fbx");
+
     // shader programをセットアップする
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vertex_shader.vsh");
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fragment_shader.fsh");
     shaderProgram.link();
     shaderProgram.bind();
 
-    qDebug() << "initializeGL fin";
-    importFbx("E:/3D Objects/Cube.fbx", vertexBuffer, indexBuffer);
 }
 
 void GLWidget::paintGL()
@@ -59,15 +60,7 @@ void GLWidget::paintGL()
     QMatrix4x4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     shaderProgram.setUniformValue("mvpMatrix", mvpMatrix);
 
-    // vertex bufferをshaderに送る
-//    shaderProgram.enableAttributeArray("position");
-//    shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset*/ 0, /*tupleSize*/ 3);
-
-    // indexを利用して描画する
-    // indicesには、iboを使わない場合は配列データのポインタを渡す
-    // iboを使う場合はiboの位置をbyteで指定する
-//    glDrawElements(GL_TRIANGLES, /*numIndices*/ 6, /*type*/ GL_UNSIGNED_INT, /*indices*/ 0);
-
+    // 描画する
     mesh.draw(shaderProgram);
 
     frame++;
