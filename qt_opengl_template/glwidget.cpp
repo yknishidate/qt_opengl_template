@@ -26,8 +26,35 @@ void GLWidget::initializeGL()
 //    mesh->setPositions(positions);
 //    mesh->setIndices(indices);
 
-    // import from fbx
-    mesh = importFbx("E:/3D Objects/teapot.fbx");
+    // ---------- diamond mesh(vertex) ----------
+    QVector<Vertex> vertices;
+    Vertex v;
+    v.position = QVector3D( 0.0f,  0.5f, 0.0f);
+    v.normal = QVector3D( 0.0f,  0.0f, 1.0f);
+    vertices.append(v);
+
+    v.position = QVector3D(-0.5f,  0.0f, 0.0f);
+    vertices.append(v);
+
+    v.position = QVector3D( 0.0f, -0.5f, 0.0f);
+    vertices.append(v);
+
+    v.position = QVector3D( 0.5f,  0.0f, 0.0f);
+    vertices.append(v);
+
+
+//    positions << QVector3D( 0.0f,  0.5f, 0.0f)
+//              << QVector3D(-0.5f,  0.0f, 0.0f)
+//              << QVector3D( 0.0f, -0.5f, 0.0f)
+//              << QVector3D( 0.5f,  0.0f, 0.0f);
+    QVector<GLuint> indices = { 0, 1, 3, 1, 2, 3 };
+
+    mesh = QSharedPointer<Mesh>(new Mesh);
+    mesh->setVertices(vertices);
+    mesh->setIndices(indices);
+
+    // ---------- import from fbx ----------
+//    mesh = importFbx("E:/3D Objects/teapot.fbx");
 
     // shader programをセットアップする
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vertex_shader.vsh");
