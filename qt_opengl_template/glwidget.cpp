@@ -1,8 +1,9 @@
-
 #include "glwidget.h"
 
 GLWidget::GLWidget(QWidget *parent)
-    : QOpenGLWidget(parent)
+    : QOpenGLWidget(parent),
+      vertexBuffer(QOpenGLBuffer::VertexBuffer),
+      indexBuffer(QOpenGLBuffer::IndexBuffer)
 {
 
 }
@@ -15,13 +16,23 @@ void GLWidget::initializeGL()
     // 背景を設定
     glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 
-    int numVertices = 3;
-    float vertices[] {
+    // 頂点を用意
+    int numVertices = 4;
+    GLfloat vertices[] {
          0.0f,  0.5f, 0.0f, 1.0f,
-        -0.5f, -0.5f, 0.0f, 1.0f,
-         0.5f, -0.5f, 0.0f, 1.0f,
+        -0.5f,  0.0f, 0.0f, 1.0f,
+         0.0f, -0.5f, 0.0f, 1.0f,
+         0.5f,  0.0f, 0.0f, 1.0f,
+    };
+    // 頂点インデックスを用意
+    int numIndices = 6;
+    GLuint indices[] = {
+        0, 1, 3,
+        1, 2, 3
     };
 
+
+    // ---------- vbo ----------
     // bufferを作成する
     vertexBuffer.create();
     // bufferを現在のコンテキストにバインド
@@ -29,18 +40,23 @@ void GLWidget::initializeGL()
     // bufferの用途を設定する
     vertexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
     // bufferの領域確保を行い、さらにverticesデータを入れる
-    int bufferSize = numVertices * 4 * sizeof(float); // 4 = numDimensions
-    vertexBuffer.allocate(vertices, bufferSize);
+    int vertexBufferSize = numVertices * 4 * sizeof(GLfloat); // 4 = numDimensions
+    vertexBuffer.allocate(vertices, vertexBufferSize);
+
+    // ---------- ibo ----------
+    // 処理は同上
+    indexBuffer.create();
+    indexBuffer.bind();
+    indexBuffer.setUsagePattern(QOpenGLBuffer::StaticDraw);
+    int indexBufferSize = numIndices * sizeof(GLuint);
+    indexBuffer.allocate(indices, indexBufferSize);
+
 
     // shader programをセットアップする
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vertex_shader.vsh");
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fragment_shader.fsh");
     shaderProgram.link();
     shaderProgram.bind();
-
-    // vertex bufferをshaderに送る
-    shaderProgram.enableAttributeArray("position");
-    shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset = */ 0, /*tupleSize = */ 4);
 }
 
 void GLWidget::paintGL()
@@ -49,8 +65,8 @@ void GLWidget::paintGL()
 
     // view matrixを計算する
     viewMatrix.setToIdentity();
-    viewMatrix.lookAt(/*eyePos   = */ QVector3D(1, 1, 1), /*targetPos = */ QVector3D(0, 0, 0),
-                      /*upVector = */ QVector3D(0, 1, 0));
+    viewMatrix.lookAt(/*eyePos*/ QVector3D(1, 1, 1), /*targetPos*/ QVector3D(0, 0, 0),
+                      /*upVector*/ QVector3D(0, 1, 0));
 
     // model matrixを作成し、回転させる
     QMatrix4x4 modelMatrix;
@@ -61,7 +77,11 @@ void GLWidget::paintGL()
     QMatrix4x4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     shaderProgram.setUniformValue("mvpMatrix", mvpMatrix);
 
-    glDrawArrays(GL_TRIANGLES, /*firstVertex = */ 0, /*numVertex = */ 3);
+    // vertex bufferをshaderに送る
+    shaderProgram.enableAttributeArray("position");
+    shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset*/ 0, /*tupleSize*/ 4);
+
+    glDrawElements(GL_TRIANGLES, /*numIndices*/ 6, /*type*/ GL_UNSIGNED_INT, 0);
 
     frame++;
     update();
@@ -69,10 +89,9 @@ void GLWidget::paintGL()
 
 void GLWidget::resizeGL(int w, int h)
 {
-    // projection matrixを単位行列にリセット
+    // projection matrixを単位行列にする
     projectionMatrix.setToIdentity();
-
     // projection matrixのperspectiveを設定
-    projectionMatrix.perspective(/*verticalAngle = */ 60.0, /*aspectRatio = */ float(w)/h,
-                                 /*nearPlane     = */ 0.01, /*farPlane    = */ 1000.0);
+    projectionMatrix.perspective(/*verticalAngle*/ 60.0, /*aspectRatio*/ float(w)/h,
+                                 /*nearPlane*/ 0.01, /*farPlane*/ 1000.0);
 }

@@ -189,67 +189,67 @@ void DisplayPosition(FbxMesh* mesh){
 //                           main
 //-------------------------------------------------------------
 
-int main(int argc, char** argv)
-{
-
-    // file name
-    const char* lFilename = "E:/3D Objects/Cube.fbx";
-
-    // Initialize the SDK manager
-    // メモリ管理を行う
-    FbxManager* lSdkManager = FbxManager::Create();
-
-    // Create the IO settings
-    FbxIOSettings *ios = FbxIOSettings::Create(lSdkManager, IOSROOT);
-    // managerにio設定を渡す
-    lSdkManager->SetIOSettings(ios);
-
-    // Create an importer using the SDK manager.
-    // managerを使ってimporterを初期化する
-    FbxImporter* lImporter = FbxImporter::Create(lSdkManager,"");
-
-    // Use the first argument as the filename for the importer.
-    // importerをfilenameとio settingで初期化する
-    if(!lImporter->Initialize(lFilename, -1, lSdkManager->GetIOSettings())) {
-        printf("Call to FbxImporter::Initialize() failed.\n");
-        printf("Error returned: %s\n\n", lImporter->GetStatus().GetErrorString());
-        exit(-1);
-    }else{
-        qDebug() << "Initialize succeed";
-    }
-
-    // Create a new scene so that it can be populated by the imported file.
-    // sceneを作成する
-    FbxScene* lScene = FbxScene::Create(lSdkManager,"myScene");
-
-    // Import the contents of the file into the scene.
-    // sceneにfileをimport
-    lImporter->Import(lScene);
-
-    // The file is imported; so get rid of the importer.
-    // importが終了したらimporterは必要ない
-    lImporter->Destroy();
-
-    DisplayContent(lScene);
-
-    // Print the nodes of the scene and their attributes recursively.
-    // Note that we are not printing the root node because it should
-    // not contain any attributes.
-    FbxNode* lRootNode = lScene->GetRootNode();
-    if(lRootNode) {
-        for(int i = 0; i < lRootNode->GetChildCount(); i++)
-            PrintNode(lRootNode->GetChild(i));
-    }
-    // Destroy the SDK manager and all the other objects it was handling.
-    lSdkManager->Destroy();
-
-    return 0;
-}
-
-//int main(int argc, char *argv[])
+//int main(int argc, char** argv)
 //{
-//    QApplication a(argc, argv);
-//    MainWindow w;
-//    w.show();
-//    return a.exec();
+
+//    // file name
+//    const char* lFilename = "E:/3D Objects/Cube.fbx";
+
+//    // Initialize the SDK manager
+//    // メモリ管理を行う
+//    FbxManager* lSdkManager = FbxManager::Create();
+
+//    // Create the IO settings
+//    FbxIOSettings *ios = FbxIOSettings::Create(lSdkManager, IOSROOT);
+//    // managerにio設定を渡す
+//    lSdkManager->SetIOSettings(ios);
+
+//    // Create an importer using the SDK manager.
+//    // managerを使ってimporterを初期化する
+//    FbxImporter* lImporter = FbxImporter::Create(lSdkManager,"");
+
+//    // Use the first argument as the filename for the importer.
+//    // importerをfilenameとio settingで初期化する
+//    if(!lImporter->Initialize(lFilename, -1, lSdkManager->GetIOSettings())) {
+//        printf("Call to FbxImporter::Initialize() failed.\n");
+//        printf("Error returned: %s\n\n", lImporter->GetStatus().GetErrorString());
+//        exit(-1);
+//    }else{
+//        qDebug() << "Initialize succeed";
+//    }
+
+//    // Create a new scene so that it can be populated by the imported file.
+//    // sceneを作成する
+//    FbxScene* lScene = FbxScene::Create(lSdkManager,"myScene");
+
+//    // Import the contents of the file into the scene.
+//    // sceneにfileをimport
+//    lImporter->Import(lScene);
+
+//    // The file is imported; so get rid of the importer.
+//    // importが終了したらimporterは必要ない
+//    lImporter->Destroy();
+
+//    DisplayContent(lScene);
+
+//    // Print the nodes of the scene and their attributes recursively.
+//    // Note that we are not printing the root node because it should
+//    // not contain any attributes.
+//    FbxNode* lRootNode = lScene->GetRootNode();
+//    if(lRootNode) {
+//        for(int i = 0; i < lRootNode->GetChildCount(); i++)
+//            PrintNode(lRootNode->GetChild(i));
+//    }
+//    // Destroy the SDK manager and all the other objects it was handling.
+//    lSdkManager->Destroy();
+
+//    return 0;
 //}
+
+int main(int argc, char *argv[])
+{
+    QApplication a(argc, argv);
+    MainWindow w;
+    w.show();
+    return a.exec();
+}
