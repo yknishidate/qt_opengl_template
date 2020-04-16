@@ -31,7 +31,6 @@ void GLWidget::initializeGL()
         1, 2, 3
     };
 
-
     // ---------- vbo ----------
     // bufferを作成する
     vertexBuffer.create();
@@ -81,7 +80,10 @@ void GLWidget::paintGL()
     shaderProgram.enableAttributeArray("position");
     shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset*/ 0, /*tupleSize*/ 4);
 
-    glDrawElements(GL_TRIANGLES, /*numIndices*/ 6, /*type*/ GL_UNSIGNED_INT, 0);
+    // indexを利用して描画する
+    // indicesには、iboを使わない場合は配列データのポインタを渡す
+    // iboを使う場合はiboの位置をbyteで指定する
+    glDrawElements(GL_TRIANGLES, /*numIndices*/ 6, /*type*/ GL_UNSIGNED_INT, /*indices*/ 0);
 
     frame++;
     update();
