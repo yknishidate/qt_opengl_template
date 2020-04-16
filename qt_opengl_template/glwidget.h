@@ -25,7 +25,5 @@ private:
     QOpenGLShaderProgram shaderProgram;
     QMatrix4x4 projectionMatrix;
     QMatrix4x4 viewMatrix;
-    QMap<QString, int> variables_location;
-
 };
 #endif // GLWIDGET_H
