@@ -27,11 +27,14 @@ CONFIG += c++11
 SOURCES += \
         glwidget.cpp \
         main.cpp \
-        mainwindow.cpp
+        mainwindow.cpp \
+        mesh.cpp
 
 HEADERS += \
+        fbx_importer.h \
         glwidget.h \
-        mainwindow.h
+        mainwindow.h \
+        mesh.h
 
 FORMS += \
         mainwindow.ui
