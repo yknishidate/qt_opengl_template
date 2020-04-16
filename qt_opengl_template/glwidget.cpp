@@ -15,7 +15,6 @@ void GLWidget::initializeGL()
     // 背景を設定
     glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 
-    // 頂点を用意
     int numVertices = 3;
     float vertices[] {
          0.0f,  0.5f, 0.0f, 1.0f,
@@ -38,6 +37,10 @@ void GLWidget::initializeGL()
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Fragment, ":/fragment_shader.fsh");
     shaderProgram.link();
     shaderProgram.bind();
+
+    // vertex bufferをshaderに送る
+    shaderProgram.enableAttributeArray("position");
+    shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset = */ 0, /*tupleSize = */ 4);
 }
 
 void GLWidget::paintGL()
@@ -57,10 +60,6 @@ void GLWidget::paintGL()
     // mvp matrixを計算し、shaderに送る
     QMatrix4x4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     shaderProgram.setUniformValue("mvpMatrix", mvpMatrix);
-
-    // vertex bufferをshaderに送る
-    shaderProgram.enableAttributeArray("position");
-    shaderProgram.setAttributeBuffer("position", GL_FLOAT, /*offset = */ 0, /*tupleSize = */ 4);
 
     glDrawArrays(GL_TRIANGLES, /*firstVertex = */ 0, /*numVertex = */ 3);
 
