@@ -14,47 +14,25 @@ void GLWidget::initializeGL()
     // 背景を設定
     glClearColor(0.0f, 0.0f, 0.3f, 1.0f);
 
-    // ---------- diamond mesh ----------
-//    QVector<QVector3D> positions;
-//    positions << QVector3D( 0.0f,  0.5f, 0.0f)
-//              << QVector3D(-0.5f,  0.0f, 0.0f)
-//              << QVector3D( 0.0f, -0.5f, 0.0f)
-//              << QVector3D( 0.5f,  0.0f, 0.0f);
+    // ---------- diamond mesh(vertex) ----------
+//    QVector<Vertex> vertices;
+//    Vertex v;
+//    v.position = QVector3D( 0.0f,  0.5f, 0.0f);
+//    v.normal = QVector3D( 0.0f,  0.0f, 1.0f);
+//    vertices.append(v);
+//    v.position = QVector3D(-0.5f,  0.0f, 0.0f);
+//    vertices.append(v);
+//    v.position = QVector3D( 0.0f, -0.5f, 0.0f);
+//    vertices.append(v);
+//    v.position = QVector3D( 0.5f,  0.0f, 0.0f);
+//    vertices.append(v);
 //    QVector<GLuint> indices = { 0, 1, 3, 1, 2, 3 };
-
 //    mesh = QSharedPointer<Mesh>(new Mesh);
-//    mesh->setPositions(positions);
+//    mesh->setVertices(vertices);
 //    mesh->setIndices(indices);
 
-    // ---------- diamond mesh(vertex) ----------
-    QVector<Vertex> vertices;
-    Vertex v;
-    v.position = QVector3D( 0.0f,  0.5f, 0.0f);
-    v.normal = QVector3D( 0.0f,  0.0f, 1.0f);
-    vertices.append(v);
-
-    v.position = QVector3D(-0.5f,  0.0f, 0.0f);
-    vertices.append(v);
-
-    v.position = QVector3D( 0.0f, -0.5f, 0.0f);
-    vertices.append(v);
-
-    v.position = QVector3D( 0.5f,  0.0f, 0.0f);
-    vertices.append(v);
-
-
-//    positions << QVector3D( 0.0f,  0.5f, 0.0f)
-//              << QVector3D(-0.5f,  0.0f, 0.0f)
-//              << QVector3D( 0.0f, -0.5f, 0.0f)
-//              << QVector3D( 0.5f,  0.0f, 0.0f);
-    QVector<GLuint> indices = { 0, 1, 3, 1, 2, 3 };
-
-    mesh = QSharedPointer<Mesh>(new Mesh);
-    mesh->setVertices(vertices);
-    mesh->setIndices(indices);
-
     // ---------- import from fbx ----------
-//    mesh = importFbx("E:/3D Objects/teapot.fbx");
+    mesh = importFbx("E:/3D Objects/Chair_tris.fbx");
 
     // shader programをセットアップする
     shaderProgram.addShaderFromSourceFile(QOpenGLShader::Vertex, ":/vertex_shader.vsh");
@@ -68,9 +46,12 @@ void GLWidget::paintGL()
 {
     static int frame = 0;
 
+    glClear(GL_COLOR_BUFFER_BIT);
+    glEnable(GL_DEPTH_TEST);
+
     // view matrixを計算する
     viewMatrix.setToIdentity();
-    viewMatrix.lookAt(/*eyePos*/ QVector3D(1, 1, 1), /*targetPos*/ QVector3D(0, 0, 0),
+    viewMatrix.lookAt(/*eyePos*/ QVector3D(1, 0.5, 1), /*targetPos*/ QVector3D(0, 0, 0),
                       /*upVector*/ QVector3D(0, 1, 0));
 
     // model matrixを作成し、回転させる
@@ -78,9 +59,14 @@ void GLWidget::paintGL()
     modelMatrix.setToIdentity();
     modelMatrix.rotate(frame, QVector3D(0, 1, 0));
 
+
     // mvp matrixを計算し、shaderに送る
     QMatrix4x4 mvpMatrix = projectionMatrix * viewMatrix * modelMatrix;
     shaderProgram.setUniformValue("mvpMatrix", mvpMatrix);
+
+    // normal matrixを計算し、shaderに送る
+    QMatrix3x3 normalMatrix = modelMatrix.normalMatrix();
+    shaderProgram.setUniformValue("normalMatrix", normalMatrix);
 
     // 描画する
     mesh->draw(shaderProgram);
